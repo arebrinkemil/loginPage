@@ -22,20 +22,14 @@ function register() {
   email = document.getElementById("email").value;
   password = document.getElementById("password").value;
   full_name = document.getElementById("full_name").value;
-  favourite_song = document.getElementById("favourite_song").value;
-  milk_before_cereal = document.getElementById("milk_before_cereal").value;
 
   // Validate input fields
   if (validate_email(email) == false || validate_password(password) == false) {
     alert("Email or Password is Outta Line!!");
     return;
   }
-  if (
-    validate_field(full_name) == false ||
-    validate_field(favourite_song) == false ||
-    validate_field(milk_before_cereal) == false
-  ) {
-    alert("One or More Extra Fields is Outta Line!!");
+  if (validate_field(full_name) == false) {
+    alert("One Field is Outta Line!!");
     return;
   }
 
@@ -53,8 +47,6 @@ function register() {
       var user_data = {
         email: email,
         full_name: full_name,
-        favourite_song: favourite_song,
-        milk_before_cereal: milk_before_cereal,
         last_login: Date.now(),
       };
 
@@ -103,8 +95,11 @@ function login() {
       // Push to Firebase Database
       database_ref.child("users/" + user.uid).update(user_data);
 
-      // DOne
+      // Done
       alert("User Logged In!!");
+
+      // Redirect to welcome page
+      window.location.href = "welcome.html";
     })
     .catch(function (error) {
       // Firebase will use this to alert of its errors
