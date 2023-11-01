@@ -28,18 +28,23 @@
     <div id="content_container">
       <div id="form_container">
         <div id="form_header_container">
-          <h2 id="form_header">Login</h2>
+          <h2 id="form_header">Register</h2>
         </div>
 
         <div id="form_content_container">
           <div id="form_content_inner_container">
+            <input type="text" id="full_name" placeholder="Full name" />
             <input type="email" id="email" placeholder="Email" />
             <input type="password" id="password" placeholder="New Password" />
-
+            <input
+              type="password"
+              id="passwordCheck"
+              placeholder="Type Password Again"
+            />
             <div id="button_container">
-              <button onclick="login()">Login</button>
+              <button onclick="register()">Register</button>
             </div>
-            <button onclick="regPage()">register</button>
+            <button onclick="logPage()">back to login</button>
           </div>
         </div>
       </div>

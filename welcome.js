@@ -1,4 +1,3 @@
-// Your web app's Firebase configuration
 var firebaseConfig = {
   apiKey: "AIzaSyDqVxDsnFHOIRIRUySZW3yngUCoSaHbl3w",
   authDomain: "loginpage-5820f.firebaseapp.com",
@@ -10,48 +9,95 @@ var firebaseConfig = {
   appId: "1:465705589202:web:5c17d45c9122945889d00b",
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize variables
+var storage = firebase.storage();
 const auth = firebase.auth();
 const database = firebase.database();
+const uploadButton = document.getElementById("uploadButton");
 
-// Listen for auth status changes
 auth.onAuthStateChanged((user) => {
   if (user) {
-    console.log("User logged in: ", user);
-    // Fetch additional details from Firebase Database
     var userRef = database.ref("users/" + user.uid);
     userRef.on("value", (snapshot) => {
       var data = snapshot.val();
       if (data) {
         document.getElementById("userName").textContent = data.full_name;
         document.getElementById("userEmail").textContent = data.email;
+
+        var userImagesRef = database.ref("users/" + user.uid + "/images");
+        userImagesRef.on("value", function (snapshot) {
+          // Clear previous images
+          // ...
+
+          snapshot.forEach(function (childSnapshot) {
+            var imageMetadata = childSnapshot.val();
+            var imageUrl = imageMetadata.url;
+
+            var img = document.createElement("img");
+            img.src = imageUrl;
+
+            var imageContainer = document.getElementById("userImagesContainer");
+            imageContainer.appendChild(img);
+          });
+        });
       }
+
+      // Continue your code here, including the logout functionality
+      // You can access the `user` variable here
     });
   } else {
     console.log("User logged out");
-    // Redirect to login page
     window.location.href = "index.html";
   }
 });
 
-// Get logout button
 const logoutButton = document.getElementById("logoutButton");
 
-// Add logout event
 if (logoutButton) {
   logoutButton.addEventListener("click", function () {
     auth
       .signOut()
       .then(() => {
-        // Sign-out successful, redirect to login page.
         window.location.href = "index.html";
       })
       .catch((error) => {
-        // An error happened.
-        console.log(error);
+        console.error(error);
       });
+  });
+}
+
+if (uploadButton) {
+  uploadButton.addEventListener("click", function () {
+    var fileInput = document.getElementById("fileInput");
+    var file = fileInput.files[0];
+    if (file) {
+      var storageRef = storage.ref("images/" + file.name);
+
+      var uploadTask = storageRef.put(file);
+
+      uploadTask.on(
+        "state_changed",
+        function (snapshot) {
+          // Update progress here if needed
+        },
+        function (error) {
+          console.error(error);
+        },
+        function () {
+          uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+            console.log("File available at", downloadURL);
+
+            var userImagesRef = database.ref("users/" + user.uid + "/images");
+            var imageMetadata = {
+              url: downloadURL,
+              timestamp: firebase.database.ServerValue.TIMESTAMP,
+            };
+
+            userImagesRef.push(imageMetadata);
+          });
+        }
+      );
+    }
   });
 }

@@ -70,6 +70,11 @@ h1 {
   background: #000;
 }
 
+img {
+  max-width: 200px;
+  max-height: 200px;
+}
+
 #form_header {
   display: inline-block;
   font-size: 15px;
@@ -141,13 +146,7 @@ input {
   width: 100%;
   height: 10%;
 
-  background-image: linear-gradient(
-    80deg,
-    #ffbe0b,
-    #fb5607 50%,
-    #ff006e 50%,
-    #8338ec
-  );
+  background-image: linear-gradient(80deg, #ffbe0b, #fb5607 50%);
   color: #fff;
 
   float: left;
@@ -156,7 +155,7 @@ input {
 }
 
 #button_container button {
-  width: 50%;
+  width: 100%;
   height: 100%;
   float: left;
 
