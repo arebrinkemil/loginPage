@@ -28,7 +28,8 @@ auth.onAuthStateChanged((user) => {
         var userImagesRef = database.ref("users/" + user.uid + "/images");
         userImagesRef.on("value", function (snapshot) {
           // Clear previous images
-          // ...
+          var imageContainer = document.getElementById("userImagesContainer");
+          imageContainer.innerHTML = "";
 
           snapshot.forEach(function (childSnapshot) {
             var imageMetadata = childSnapshot.val();
@@ -37,9 +38,53 @@ auth.onAuthStateChanged((user) => {
             var img = document.createElement("img");
             img.src = imageUrl;
 
-            var imageContainer = document.getElementById("userImagesContainer");
             imageContainer.appendChild(img);
           });
+        });
+      }
+
+      // Add the upload button event listener here
+      var uploadButton = document.getElementById("uploadButton");
+      if (uploadButton) {
+        uploadButton.addEventListener("click", function () {
+          var fileInput = document.getElementById("fileInput");
+          var file = fileInput.files[0];
+          if (file) {
+            var storageRef = storage.ref("images/" + file.name);
+
+            var uploadTask = storageRef.put(file);
+
+            uploadTask.on(
+              "state_changed",
+              function (snapshot) {
+                // Update progress here if needed
+              },
+              function (error) {
+                console.error(error);
+              },
+              function () {
+                uploadTask.snapshot.ref
+                  .getDownloadURL()
+                  .then(function (downloadURL) {
+                    console.log("File available at", downloadURL);
+
+                    // Create a reference to the user's images in the database
+                    var userImagesRef = database.ref(
+                      "users/" + user.uid + "/images"
+                    );
+
+                    // Create image metadata
+                    var imageMetadata = {
+                      url: downloadURL,
+                      timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    };
+
+                    // Push the image metadata to the user's images in the database
+                    userImagesRef.push(imageMetadata);
+                  });
+              }
+            );
+          }
         });
       }
 
@@ -66,38 +111,50 @@ if (logoutButton) {
       });
   });
 }
+var user = firebase.auth().currentUser;
+if (user) {
+  if (uploadButton) {
+    uploadButton.addEventListener("click", function () {
+      var fileInput = document.getElementById("fileInput");
+      var file = fileInput.files[0];
+      if (file) {
+        var storageRef = storage.ref("images/" + file.name);
 
-if (uploadButton) {
-  uploadButton.addEventListener("click", function () {
-    var fileInput = document.getElementById("fileInput");
-    var file = fileInput.files[0];
-    if (file) {
-      var storageRef = storage.ref("images/" + file.name);
+        var uploadTask = storageRef.put(file);
 
-      var uploadTask = storageRef.put(file);
+        uploadTask.on(
+          "state_changed",
+          function (snapshot) {
+            // Update progress here if needed
+          },
+          function (error) {
+            console.error(error);
+          },
+          function () {
+            uploadTask.snapshot.ref
+              .getDownloadURL()
+              .then(function (downloadURL) {
+                console.log("File available at", downloadURL);
 
-      uploadTask.on(
-        "state_changed",
-        function (snapshot) {
-          // Update progress here if needed
-        },
-        function (error) {
-          console.error(error);
-        },
-        function () {
-          uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            console.log("File available at", downloadURL);
+                // Create a reference to the user's images in the database
+                var userImagesRef = database.ref(
+                  "users/" + user.uid + "/images"
+                );
 
-            var userImagesRef = database.ref("users/" + user.uid + "/images");
-            var imageMetadata = {
-              url: downloadURL,
-              timestamp: firebase.database.ServerValue.TIMESTAMP,
-            };
+                // Create image metadata
+                var imageMetadata = {
+                  url: downloadURL,
+                  timestamp: firebase.database.ServerValue.TIMESTAMP,
+                };
 
-            userImagesRef.push(imageMetadata);
-          });
-        }
-      );
-    }
-  });
+                // Push the image metadata to the user's images in the database
+                userImagesRef.push(imageMetadata);
+              });
+          }
+        );
+      }
+    });
+  }
+} else {
+  // No user is signed in, handle this case
 }

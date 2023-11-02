@@ -43,7 +43,7 @@ function register() {
       };
       database_ref.child("users/" + user.uid).set(user_data);
       alert("User Created!!");
-      window.location.href = "index.html";
+      // window.location.href = "index.html";
     })
     .catch(function (error) {
       var error_code = error.code;
